@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-west-2a
+      ImageId: ami-04dd23e62ed049936
+      InstanceType: t2.micro
+      KeyName: keypair-oregon
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: 50
+            DeleteOnTermination: "true"
+      SecurityGroups:
+        - Ref: ServerSecurityGroup1
+        - Ref: ServerSecurityGroup2
+
+  ServerSecurityGroup1:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: allow 2 connections from specified CIDR ranges
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        Fromport: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        Fromport: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+  ServerSecurityGroup2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: allow 1 connection to port 22 with an specific IP
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        Fromport: 22
+        ToPort: 22
+        CidrIp: 192.168.1.1/32
