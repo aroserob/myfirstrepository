@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  MyKeyPairParameter:
+    Type: AWS::EC2::KeyPair::KeyName
+  InstanceTypeParameter:
+    Description: Enter t2.micro, m1.small, m1.large, t2.nano, t3.small. Default is t2.micro.
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+      - t2.nano
+      - t3.small
+  SecurityGroupIPParameter:
+    Description: Ingresa la IP    
+    Type: String
+    Default: 0.0.0.0/0
+  EBSSizeParameter:
+    Description: Ingresa el tamaño del disco duro a ser usado
+    Type: Number
+    Default: 8
+    AllowedValues: [8,9,10,11,12,13,14,15,16,17,18,19,20]
+  PortParameter:
+    Description: Ingresa el número del puerto
+    Type: String
+    AllowedPattern: ^[[0-9]{0,4}]*$
+    ConstraintDescription: Malformed input-Parameter MyParameter must only contain numbers
+
+Mappings:
+    AMIIDMap:
+      us-west-2:
+        MyAMI: "ami-04dd23e62ed049936"
+        MyAZ: us-west-2a
+      us-east-2:
+        MyAMI: "ami-0ea3c35c5c3284d82"
+        MyAZ: us-east-2a
+Resources:
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: !FindInMap [AMIIDMap, !Ref "AWS::Region", MyAZ]
+      ImageId: !FindInMap [AMIIDMap, !Ref "AWS::Region", MyAMI]
+      InstanceType: !Ref InstanceTypeParameter 
+      KeyName: !Ref MyKeyPairParameter
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref EBSSizeParameter
+            DeleteOnTermination: "true"
+      SecurityGroups:
+        - Ref: ServerSecurityGroup
+    
+  ServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: allow connections from specified CIDR ranges
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        Fromport: !Ref PortParameter
+        ToPort: !Ref PortParameter
+        CidrIp: !Ref SecurityGroupIPParameter    
