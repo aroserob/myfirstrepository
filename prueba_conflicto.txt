@@ -1,2 +1,5 @@
+<<<<<<< HEAD
 Mi frase favorita es: "Mientras más conozco a las personas, más quiero a mi perro y también a mi gato"
 Fuck everybody!
+Love you man!
+>>>>>>> actualizar-frase
